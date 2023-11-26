@@ -2,7 +2,7 @@ import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as LocalStrategy } from "passport-local";
 import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
-import ErrorHandler from "../errors/badRequest.js";
+// import { AppError } from "../errors/AppError";
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ export default function configurePassport(passport) {
         try {
           return done(null, token.user);
         } catch (error) {
-          throw new ErrorHandler('Error', 500);
+          return done(error);
         }
       }
     )
@@ -40,9 +40,11 @@ export default function configurePassport(passport) {
             lastname,
             password,
           });
+        
           return done(null, user);
         } catch (error) {
-          throw new ErrorHandler('This user exists', 400);
+          error.message = "This user exists";
+          done(error);
         }
       }
     )
@@ -58,22 +60,24 @@ export default function configurePassport(passport) {
       async (email, password, done) => {
         try {
           const user = await userModel.findOne({ email });
-
+  
           if (!user) {
             return done(null, false, { message: "User not found" });
           }
-
+  
           const validate = await user.isValidPassword(password);
-
+  
           if (!validate) {
             return done(null, false, { message: "Wrong Password" });
           }
-
+  
           return done(null, user, { message: "Logged in Successfully" });
         } catch (error) {
-          throw new ErrorHandler('Error', 500);
+          console.log(error)
+          // return done(new AppError("Error", 500));
         }
       }
     )
   );
-};
+  
+}

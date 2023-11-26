@@ -5,7 +5,7 @@ import * as authController from '../controllers/authController.js';
 
 const userRouter = express.Router();
 
-userRouter.post('/signup', validateUser, passport.authenticate('signup', { session: false }), authController.signUp);
-userRouter.post('/login', validateUser, passport.authenticate('login', { session: false }), authController.login);
+userRouter.post('/signup', validateUser, authController.signUp);
+userRouter.post('/login', validateUser,  authController.login);
 
 export default userRouter;

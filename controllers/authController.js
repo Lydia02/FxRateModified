@@ -4,7 +4,7 @@ import CustomAPIError from '../errors/badRequest.js';
 
 export const signUp = async (req, res, next) => {
   try {
-    const body = { _id: req.user._id, email: req.user.email };
+    // const body = { _id: req.user._id, email: req.user.email };
     res.json({
       message: 'Signup successful',
       user: req.user,
@@ -15,13 +15,12 @@ export const signUp = async (req, res, next) => {
   }
 };
 
-export const login = async (req, res) => {
-  passport.authenticate('login', async (err, user, info) => {
-    try {
+export const login = async (req, res, next) => {
+  try {
+    passport.authenticate('login', async (err, user) => {
       if (err) throw err;
 
       if (!user) {
-        // Use your custom BadRequestError here
         throw new CustomAPIError('Username or password is incorrect');
       }
 
@@ -37,10 +36,13 @@ export const login = async (req, res) => {
           token: token,
           userID: req.user._id,
         });
+
+        // Move next() here, after sending the response
+        next();
       });
-    } catch (error) {
-      // Handle the error here
-      res.status(500).json({ error: error.message });
-    }
-  })(req, res);
+    })
+  } catch (error) {
+    console.log(error);
+    next(new CustomAPIError('Internal Server Error'));
+  }
 };

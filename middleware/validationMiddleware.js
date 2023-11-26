@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import BadRequestError from '../errors/badRequest.js';
+import BadRequestError from '../errors/AppError.js';
 
 const userValidationSchema = Joi.object({
   firstname: Joi.string(),
@@ -39,7 +39,4 @@ const validateFxPreference = (req, res, next) => {
   next();
 };
 
-export {
-  validateUser,
-  validateFxPreference,
-};
+export { validateUser, validateFxPreference };

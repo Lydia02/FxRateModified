@@ -1,25 +1,39 @@
-import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
-const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  console.log(token);
+const { Schema } = mongoose;
 
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized: No token provided' });
-  }
+const UserSchema = new Schema({
+  firstname: {
+    type: String,
+    required: true,
+  },
+  lastname: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+});
 
-  const splitToken = token.split(' ')[1];
+UserSchema.pre('save', async function () {
+  const hash = await bcrypt.hash(this.password, 10);
+  this.password = hash;
+});
 
-  jwt.verify(splitToken, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      //  console.log(err)
-      return res.status(401).json({ message: 'Unauthorized: Invalid token' });
-    }
-    console.log(decoded);
-
-    req.userId = decoded.user._id;
-    next();
-  });
+UserSchema.methods.isValidPassword = async function (password) {
+  const user = this;
+  const compare = await bcrypt.compare(password, user.password);
+  return compare;
 };
 
-export default verifyToken;
+const User = mongoose.model('user', UserSchema);
+
+export default User;
