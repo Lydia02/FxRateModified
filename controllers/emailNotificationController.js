@@ -19,14 +19,14 @@ const transporter = nodemailer.createTransport({
     user: 'ojoawolydia@gmail.com',
     clientId: process.env.clientId,
     clientSecret: process.env.clientSecret,
-    refreshToken: 'REFRESH_TOKEN', // Ensure this is correctly set
+    refreshToken: 'REFRESH_TOKEN', 
   },
 });
 
 // Function to send email notifications
 const sendEmail = async (to, subject, text) => {
   const mailOptions = {
-    from: 'xyz@gmail.com', // Ensure the 'from' address is correctly set
+    from: 'xyz@gmail.com', 
     to, 
     subject,
     text,
@@ -34,7 +34,7 @@ const sendEmail = async (to, subject, text) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully'); // Consider appropriate logging or handling here
+    console.log('Email sent successfully'); 
   } catch (error) {
     // Handle specific error types and throw custom errors
     switch (error.responseCode) {
