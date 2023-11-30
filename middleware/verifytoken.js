@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const verifyToken = (req, res, next) => {
+ const verifyToken = async (req, res, next) => {
   const token = req.headers['authorization'];
   console.log(token);
 
@@ -12,14 +12,12 @@ const verifyToken = (req, res, next) => {
 
   jwt.verify(splitToken, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      //  console.log(err)
       return res.status(401).json({ message: 'Unauthorized: Invalid token' });
     }
-    console.log(decoded);
 
+    console.log(decoded);
     req.userId = decoded.user._id;
     next();
   });
-};
-
-export default verifyToken;
+}
+export {verifyToken}

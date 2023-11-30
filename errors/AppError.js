@@ -1,8 +1,20 @@
 class AppError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = 500; // Set the status code to 500 (Internal Server Error)
+  constructor(error) {
+    const { code, message } = error;
+    super();
+    this.statusCode = code;
+    this.message = message;
   }
 }
 
-export default AppError;
+const handleError = (err, res) => {
+  const statusCode = err.statusCode ?? 500;
+  const message = err.message ?? "Something went wrong";
+
+  return res.status(statusCode).json({
+    status: false,
+    message
+  });
+};
+
+export { AppError, handleError };

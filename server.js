@@ -1,34 +1,35 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import passport from 'passport';
 import bodyParser from 'body-parser';
-// import { handleError } from './errors/AppError';
-// import preferenceRouter from './routes/fxnoRoute';
+import { handleError } from './errors/AppError.js';
+import preferenceRouter from './routes/fxnoRoute.js';
 import userRoute from './routes/authRoutes.js';
-// import configureRateLimit from './utils/rateLimit';
-// import fxRatesRoutes from './routes/fxRoute';
-import './middleware/auth.js';
+// import configureRateLimit from './utils/rateLimit.js';
+import fxRouter from './routes/fxRoute.js';
+// import './middleware/auth.js'; // Assuming that this file exports and configures passport
+import configurePassport from './middleware/auth.js';
 
-dotenv.config();
+// Initialize Passport with the defined strategies
+configurePassport(passport);
 
 const app = express();
+
 app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 // const limiter = configureRateLimit();
 // app.use(limiter);
 
-// app.use('/api', preferenceRouter);
-
-// app.use('/api', passport.authenticate('jwt', { session: false }), fxRatesRoutes);
-
+app.use('/api', preferenceRouter);
 app.use('/', userRoute);
-// app.use('/api', fxRatesRoutes);
-// app.use(errorHandler);
-// app.use((err, req, res, next) => {
-//   console.log('[onRequest] error', err);
-//   handleError(err, res);
-// });
+app.use('/api', fxRouter);
+
+app.use((err, req, res, next) => {
+  console.log('[onRequest] error', err);
+  handleError(err, res);
+});
 
 export default app;

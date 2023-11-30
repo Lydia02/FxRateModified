@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
-
-dotenv.config();
-
-export const fixerApiKey = process.env.fixerApiKey;
+// config.js
+const config = {
+    fixerApiKey: process.env.fixerApiKey,
+    // other configurations
+  };
+  
+  export { config };
+  

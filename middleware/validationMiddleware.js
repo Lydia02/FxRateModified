@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import BadRequestError from '../errors/AppError.js';
+import BadRequestError from '../errors/badRequest.js';
 
 const userValidationSchema = Joi.object({
   firstname: Joi.string(),
@@ -14,29 +14,25 @@ const fxPreferenceValidationSchema = Joi.object({
   targetRate: Joi.number().required(),
 });
 
-const validateUser = (req, res, next) => {
+export const validateUser = (req, res, next) => {
   const { error } = userValidationSchema.validate(req.body);
   req.body.email = req.body?.email?.toLowerCase();
 
   if (error) {
     const validationErrors = error.details.map((detail) => detail.message);
-    // Create and pass a BadRequestError to the error handling middleware
     return next(new BadRequestError(validationErrors.join(', ')));
   }
 
   next();
 };
 
-const validateFxPreference = (req, res, next) => {
+export const validateFxPreference = (req, res, next) => {
   const { error } = fxPreferenceValidationSchema.validate(req.body);
 
   if (error) {
     const validationErrors = error.details.map((detail) => detail.message);
-    // Create and pass a BadRequestError to the error handling middleware
     return next(new BadRequestError(validationErrors.join(', ')));
   }
 
   next();
 };
-
-export { validateUser, validateFxPreference };

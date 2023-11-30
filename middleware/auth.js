@@ -1,12 +1,13 @@
-import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
-import { Strategy as LocalStrategy } from "passport-local";
-import dotenv from "dotenv";
-import userModel from "../models/userModel.js";
-// import { AppError } from "../errors/AppError";
+import passport from 'passport';
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import { Strategy as LocalStrategy } from 'passport-local';
+import dotenv from 'dotenv';
+import userModel from '../models/userModel.js';
+import { AppError } from '../errors/AppError.js';
 
 dotenv.config();
 
-export default function configurePassport(passport) {
+export default function (passport) {
   passport.use(
     new JWTStrategy(
       {
@@ -17,18 +18,18 @@ export default function configurePassport(passport) {
         try {
           return done(null, token.user);
         } catch (error) {
-          return done(error);
+          return done(new AppError('Error', 500));
         }
       }
     )
   );
 
   passport.use(
-    "signup",
+    'signup',
     new LocalStrategy(
       {
-        usernameField: "email",
-        passwordField: "password",
+        usernameField: 'email',
+        passwordField: 'password',
         passReqToCallback: true,
       },
       async (req, email, password, done) => {
@@ -40,10 +41,10 @@ export default function configurePassport(passport) {
             lastname,
             password,
           });
-        
+
           return done(null, user);
         } catch (error) {
-          error.message = "This user exists";
+          error.message = 'This user exists';
           done(error);
         }
       }
@@ -51,33 +52,32 @@ export default function configurePassport(passport) {
   );
 
   passport.use(
-    "login",
+    'login',
     new LocalStrategy(
       {
-        usernameField: "email",
-        passwordField: "password",
+        usernameField: 'email',
+        passwordField: 'password',
       },
       async (email, password, done) => {
+        console.log('Login strategy called with email:', email);
         try {
           const user = await userModel.findOne({ email });
-  
+
           if (!user) {
-            return done(null, false, { message: "User not found" });
+            return done(null, false, { message: 'User not found' });
           }
-  
+
           const validate = await user.isValidPassword(password);
-  
+
           if (!validate) {
-            return done(null, false, { message: "Wrong Password" });
+            return done(null, false, { message: 'Wrong Password' });
           }
-  
-          return done(null, user, { message: "Logged in Successfully" });
+
+          return done(null, user, { message: 'Logged in Successfully' });
         } catch (error) {
-          console.log(error)
-          // return done(new AppError("Error", 500));
+          return done(new AppError('Error', 500));
         }
       }
     )
   );
-  
 }
